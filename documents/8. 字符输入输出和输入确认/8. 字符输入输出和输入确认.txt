@@ -1,0 +1,74 @@
+8.1 单字符I/O: getchar()和putchar()
+-------------------------------------
+getchar(): 输入一个字符，包括空格
+putchar(): 输出一个字符，包括空格
+
+
+8.2 缓冲区
+-----------
+非缓冲输入：键入的字符立即显示
+缓存输入：键入的字符先存储在缓冲区(buffer)，按下回车键后，缓存区的字符进行显示
+
+为什么需要缓冲区？
+1）缓冲区使用块传输，比字符逐个传输效率高
+2）可纠正输入错误
+
+缓冲区分两类：
+1）完全缓冲(fully buffered)I/O: 缓冲区满时被清空(内容发送到目的地)，主要用在文件输入中；
+2）行缓冲(line-buffered)I/O：遇到换行符时将清空缓冲区, 键盘输入是行缓冲
+
+
+8.3 终止键盘输入
+---------------------
+8.3.1 文件、流和键盘输入
+文件(file)是一块存储信息的存储器区域。
+C语言将对文件和输入输出设备的处理抽象成对流的处理。
+流(stream)是一个理想化的数据流，实际输入或输出设备映射到这个数据流。
+例子：键盘输入由stdin的流表示，输入由stdout流表示。
+
+8.3.2 文件结尾
+getchar(), scanf()检测到文件结尾时会返回一个特殊值，这个特殊值叫EOF(End of File)
+
+如果读取的是键盘输入呢？
+用在一行的开始位置键入ctrl+Z模拟EOF
+即：回车后按ctrl+z
+
+
+8.5 创建更友好的用户界面
+------------------------
+8.5.1 使用缓冲输入
+int main(void) 
+{
+    int guess = 1;
+    printf("Pick an integer from 1 to 100. I will try to guess it.\n");
+    printf("Response with 'y' if my guess is right and with 'n' if it is wrong.\n");
+    printf("Uh...is your number is %d?\n", guess);
+ 
+    while (getchar() != 'y') {
+        printf("Well, then, is it %d?\n", ++guess);
+        while (getchar() != '\n') {
+            continue;
+        }
+    }
+    printf("I knew  could do it.\n");
+    printf("\n---------------------------------------------\n");
+    return 0;
+}
+
+
+8.6 输入确认
+---------------------------
+获取整数输入，处理非整数输入：
+int get_int(void)
+{
+    int input;
+    char ch;
+    while(scanf("%d", &input) != 1) {
+        while((ch = getchar()) != '\n')
+            putchar(ch);
+        printf(" is not an integer. Please enter an integer value.\n");
+    }
+    return input;
+}
+
+

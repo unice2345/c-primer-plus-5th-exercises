@@ -1,0 +1,198 @@
+12.1 存储类
+-----------------------------
+描述变量:
+存储时期(storage duration)
+作用域(scope)
+链接(linkage)
+
+12.1.1 作用域
+可以访问标识符的区域
+
+1）代码块作用域(block scope)
+
+int a = 0;
+{
+	int b = 10;
+}
+a++;
+b++; // 错误
+
+2）函数原型作用域(function protype scope)
+变量定义处到函数原型声明的末尾
+int func(int x, int y);
+
+3) 文件作用域(file scope)
+变量定义处到文件结尾
+
+12.1.2 链接
+外部链接(external linkage)
+内部链接(internal linkage)
+空链接(no linkage)
+
+代码块作用域，函数原型作用域：
+	空链接，即变量只能在代码块内部使用
+
+文件作用域：
+	外部链接：变量可在多个文件中使用
+	内部链接：变量可在当前文件中使用
+	区分：static
+	
+int x = 0;         // 文件作用域，外部链接
+static int y = 1;  // 文件作用域，内部链接
+int main()
+{
+}
+	
+12.1.3 存储时期
+静态存储时期(static storage duration), 自动存储时期(automatic storage duration)
+
+静态存储时期：变量在程序执行期间一直存在
+	具有文件作用域的变量
+
+自动存储时期：
+	具有代码块作用域的变量。进入代码块，为变量分配内存；退出代码块，分配的内存被释放。
+	
+	
+五种存储类
+-----------
+自动变量 
+寄存器变量
+具有外部链接的静态变量
+具有内部链接的静态变量 
+空链接的静态变量
+
+12.1.4 自动变量
+具有：自动存储时期，代码块作用域，空链接
+
+代码块或函数内部的变量
+
+变量与外层变量同名，将隐藏外部变量
+int x = 3;
+printf("outter block: x = %d\n", x);
+{
+	int x = 4;
+	printf("inner block: x = %d\n", x);
+}
+
+自动变量不会被自动初始化
+
+12.1.5 寄存器变量
+具有：自动存储时期，代码块作用域，空链接
+
+register说明符:
+register int x;
+
+编译器尝试将变量存储到寄存器中。
+
+无法对寄存器变量使用地址符。
+
+12.1.6 具有代码块作用域的静态变量
+静态变量（static variable）
+
+代码块作用域，空链接，静态存储时期
+
+从函数的一次调用到下一次调用，值被保存
+
+void count() {
+	static int count = 0;
+	count++;
+}
+
+静态变量被自动初始化为0，程序调入内存时已经初始化完成
+
+12.1.7 具有外部链接的静态变量
+具有：文件作用域，外部链接，静态存储时期
+
+外部存储类(external storage class), 外部变量(external variable)
+
+可使用extern关键字再次声明。如果变量在其他文件中定义，使用extern声明是必须的。
+
+int x; // 外部变量
+external int y; // 在其他文件中定义的外部变量
+int main()
+{
+}
+
+1) 初始化
+自动初始化为0
+只可以用常量表达式来初始化
+
+int x = 10;
+size_t z = sizeof(int);
+int y = 2 * x;   // 不可以
+
+2) 定义和声明
+int x = 1;   // 定义
+int main()
+{
+	external int x; // 引用声明
+}
+
+第一次声明：定义声明(defining declaration)
+第二次声明：引用声明(referencing declaration)
+	关键字extern表明这是引用声明，不引起空间分配
+
+12.1.8 具有内部链接的静态变量
+具有：文件作用域，内部链接，静态存储时期	
+static int x = 0;
+int main()
+{
+}
+
+只可在当前文件中使用
+
+12.1.9 多文件
+变量在一个文件中定义，其他文件要使用extern修饰该变量
+
+
+12.2
+--------
+存储类说明符
+
+auto: 变量具有自动存储时期
+register: 只能用于具有代码块作用域的变量
+static: 使变量具有静态存储时期。作用于具有文件作用域的变量时，使变量具有内部链接
+extern: 表示在别处定义了该变量。
+
+函数也具有存储类
+
+
+12.6 分配内存：malloc()和free()
+--------------------------------
+运行时分配内存
+
+double *ptd;
+ptd = (double*) malloc (30 * sizeof(double));
+
+参数：要分配的内存大小，以字节为单位
+返回值: 分配的内存的地址，void*类型，需要转换成对应的指针类型
+
+
+free(ptd)
+
+释放malloc分配的内存
+参数：指向内存的指针
+
+头文件: stdlib.h
+
+只malloc, 没有free，引起内存泄漏(memory leak)
+
+
+12.7 ANSI C的类型限定词
+-----------------------
+12.7.1 const
+不能改变const变量的值
+1)指针和参量声明中使用const
+const float * pf; // pf指向一个常量浮点数
+float * const pt; // pt是一个常量指针
+
+char* strcat(char *, const char*);
+
+2) 对全局数据使用const
+const double PI = 3.1415926;
+
+
+
+
+
+

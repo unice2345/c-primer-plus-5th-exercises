@@ -1,0 +1,214 @@
+
+11.1 字符串表示和字符串I/O
+-----------------------------
+字符串(character string)是以空字符(\0)为结尾的char数组。
+
+11.1.1 在程序中定义字符串
+字符串常量，char数组, char指针, 字符串数组
+
+1）字符串常量
+字符串常量(string constant),又称字符串文字(string literal), 是指位于一对双引号中的任何字符。
+编译器自动给双引号中的字符添加\0结尾，并存储到内存中。
+
+char greeting[50] = "Hello, and how are you today.";
+字符串数组           字符串常量 
+
+字符串常量属于静态存储(static storage)类. 该字符串在程序中只存储一份，整个引号中的内容作为指向该字符串存储位置的指针。
+
+例子：
+    char * str0 = "Hello, world";
+    char * str1 = "Hello, world";
+    printf("str address is %p, str0 address is %p, str1 address is %p\n", "Hello, world", str0, str1);
+    printf("str = \"%s\", str0 = \"%s\", str1 = \"%s\"\n", "Hello, world", str0, str1);
+
+2) 字符串数组及其初始化
+const char m1[32] = "Hello, world";
+const char m2[32] = {'H', 'e', 'l', 'l', 'o', ',', ' ', 'w', 'o', 'r', 'l', 'd', '\0'};
+const char m3[] = "Hello, world"; // 编译器决定字符串数组的大小
+
+注意第二种初始化方式，结尾必须有\0字符，否则就不是字符串数组。
+
+确保数组元素数比字符串长度多1.
+未被使用的元素自动初始化为0，即空字符。
+
+3) 指针和数组
+const char m3[] = "Hello, world";
+          字符串数组
+char * m4 = "Hello, world";
+	字符串指针
+	
+m3是字符串数组，编译器会为其分配13个元素大小的内存空间。程序运行后，会将字符串常量"Hello, world"的内容(位于静态存储区)拷贝到m3数组中去。
+m4是一个指针，程序运行后，将m4指向字符串常量"Hello, world"的地址。
+
+例子：
+    const char m3[] = "Hello, world";
+    char * m4 = "Hello, world";
+    printf("str address is %p, m3 address is %p, m4 address is %p\n", "Hello, world", m3, m4);
+    printf("str = \"%s\", m3 = \"%s\", m4 = \"%s\"\n", "Hello, world", m3, m4);
+    
+总之，数组初始化时从静态存储区将字符串赋值给数组；指针初始化只是复制字符串的地址。
+
+差别：数组名是常量，指针是变量
+	m4++; //合法
+	m3++; //不合法
+	
+	m4 = m3; // 合法
+	m3 = m4; // 不合法
+	
+注意:
+	m4[0] = 'A'; // 修改常量字符串，会引起错误
+所以，一般将字符串指针用const修饰:
+	const char * m4 = "Hello, world";
+	
+5) 字符串数组 
+方法1；
+const char * my_strings[3] = {
+	"Hello, world!",
+	"C is funny!",
+	"Practise makes perfect"
+};
+
+my_strings是包含3个元素的数组，元素是const char*类型，即字符串指针。
+my_strings数组里存放的是字符串的地址，而不是内容。
+
+方法2：
+const char my_strings2[3][32] = {
+        "Hello, world!",
+        "C is funny!",
+        "Practise makes perfect."
+    };
+
+my_strings2是包含3个元素的数组，元素是const char [32]类型，即一维字符串数组。
+my_strings数组里存放的是字符串的内容。
+
+
+11.2 字符串输入
+---------------
+11.2.1 创建存储空间
+读入字符串时，首先要创建存储空间
+
+char name[64];
+scanf("%s", name);
+
+11.2.2 gets()函数
+读取换行符之前的字符，在末尾添加空字符\0；读取并丢弃换行符。
+return值返回字符串的指针。如果读取到文件末尾，返回NULL空指针。
+
+char name[64];
+char * ptr;
+ptr = gets(name)
+
+11.2.3 fgets函数
+1)第2个参数说明读入的最大字符数。如果为n,读入n-1个字符，或者读完一个换行符；
+2)读到换行符会保留到字符串中；
+3)第3个参数说明输入流。
+
+char name[64];
+char * ptr;
+ptr = fgets(name, 64, stdin);
+printf("%s %s\n", ptr, name);
+
+11.2.4 scanf()函数
+基于单词读取
+读到空白字符(空格、制表符、换行符)或指定宽度,%10s
+返回值：读取的单词(或其他项目)个数，或EOF
+
+char name[64], name1[64];
+int count;
+printf("What is your name?");
+count = scanf("%5s %10s", name, name1);
+printf("You read %d names: %s and %s\n", count, name, name1);
+
+
+11.3 字符串输出
+--------------
+11.3.1 puts函数
+自动添加一个换行符
+
+11.3.2 fputs函数
+1）第2个参数指定输出流；
+2）不添加换行符；
+
+两种回显方式:
+char line[81];
+while (gets(line))
+	puts(line);
+	
+char line[81];
+while (fgets(line, 81, stdin))
+	fputs(line, stdout);
+	
+11.3.3 printf函数
+
+    
+11.5 字符串函数
+-----------------
+string.h头文件
+
+11.5.1 strlen()函数
+获取字符串长度，不包括空字符
+
+11.5.2 strcat()函数
+string concatenation:字符串拼接
+将第二个字符串的一份拷贝添加到第一个字符串的结尾，形成一个新字符串。
+返回值：第一个字符串的地址
+
+char line[81] = "Hello ";
+char line2[] = "world";
+const char * str;
+
+str = strcat(line, line2);
+puts(line);
+puts(str);
+
+11.5.3 strncat()函数
+第3个参数，指明允许最多添加的字符数目。
+strncat(src, dst, n);
+向src添加n个字符，或遇到空字符终止
+
+11.5.4 strcmp()函数
+比较字符串内容
+strcmp(src, dst);
+src的内容排在dst内容之前，返回负数；
+stc和dst内容相同,返回0；
+src的内容排在dst内容之后，返回正数；
+
+11.5.5 strncmp()函数
+strncmp(src, dst, n) 只比较前n个字符
+达到搜索字符串的目的
+strncmp(line, "hello") == 0
+
+11.5.6 strcpy, strncpy函数
+strcpy(dst, src) 将src字符串拷贝到dst字符串
+dst不需要指向数组的开始，这样可以实现拷贝字符串的一部分
+
+strncpy(dst, src, n): n指定拷贝的最大字符数目
+
+11.5.7 sprintf()函数
+将格式化输出写到字符串
+char string[64];
+sprintf(string, "%s %f", "The price is ", 3.23);
+
+
+11.8 命令行参数
+-----------------
+int main(int argc, char* argv[])
+
+argc: 参数格式化
+argv: 指针数组，存储命令行参数
+
+int main(int argc, char * argv[]) 
+{
+    int i;
+    for (i = 0; i < argc; i++)
+        puts(argv[i]);
+    return 0;
+}
+
+
+11.9 字符串转换为数字
+---------------------
+atoi 将字符串转为为整数，字符串以整数位开头
+atof 将字符串转换为double类型
+atol 将字符串转换为long类型
+

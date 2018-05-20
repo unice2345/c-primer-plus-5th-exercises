@@ -1,0 +1,227 @@
+预处理指令：#开头的指令
+
+16.2 明显常量: #define
+-------------------------
+预处理指令可以出现在源文件的任何位置，其作用域从定义位置到文件的结尾
+
+预处理指令从#开始到第一个换行符结束。可以用\将指令扩展到多个行。
+#define MSG "Hello! Welcom to \
+C world!"
+
+构成：预处理指令，宏(macro)，替换列表(replacementlist)或主体(body)
+
+#define      PI     3.926
+预处理指令   宏     替换列表
+
+将宏替换成文件的过程，叫做宏展开(macro expansion)
+
+这里的宏PI没有参数，称为类对象宏(object-like macro)。
+
+预处理器不进行计算，只按照指令进行文字替换
+
+16.2.1 语言符号(token)
+系统将宏的主体当成语言符号(token)字符串，而不是字符型字符串
+语言符号是“单词”, 用空白字符分开：
+#define FOUR 2*2
+一个语言符号，即“2*2”
+
+#define SIX 2 * 3
+三个语言符号，"2", "*"和"3"
+
+
+16.3 在#define中使用参数
+-----------------------------
+通过使用参数，可以创建类函数宏(function-like macro)
+
+#define MEAN(X,Y) (((X) + (Y)) / 2)
+         宏        替换列表
+		 X,Y: 宏参数
+		 
+注意：为了达到替换目的，需使用尽量多的括号，并且不要使用自增和自减运算符替换宏参数
+
+16.3.1 利用宏参数创建字符串: #运算符
+#用作一个预处理运算符，可以将语言符号转化为字符串。
+X是宏参数，#X会将该参数名转化为字符串，这个过程叫字符串化(stringizing)
+
+例子：
+#define PR(X) printf("The square fo " #X " is %d.\n", ((X) * (X)))
+
+16.3.2 预处理器的粘合剂: ##运算符
+##运算符将两个语言符号组合成单个语言符号
+#define XNAME(n) x ## n
+宏调用XNAME(4)展开为x4
+
+16.3.3 可变宏: ...和__VA_ARGS__
+宏定义参数列表的最后一个参数为...， 预定义宏__VA_ARGS__就可以被用在替换部分，表明省略号代码的内容
+
+#define PR(...) printf(__VA_ARGS__)
+
+PR("Hello");
+__VA_ARGS__展开为一个参数”Hello"
+
+PR("weight = %d, shipping = $%.2f\n", wt, sp);
+__VA_ARGS__展开为三个参数"weight = %d, shipping = $%.2f\n", wt和sp
+
+
+16.4 宏，还是函数
+---------------------
+宏产生内联代码； 函数涉及跳转，比内联代码花费时间多；
+宏不检查变量类型；
+
+
+16.5 文件包含：#include
+--------------------------
+#include <stdio.h> // 优先在系统目录中查找头文件
+#include "mystuff.h" // 优先在当前目录中查找头文件
+
+#16.5.2 使用头文件
+头文件内容通常包括:
+明显常量；
+宏函数；
+函数声明；
+结构模板定义；
+类型定义
+
+
+16.6 其他指令
+---------------------------
+16.6.1 #undef指令
+取消一个#define定义
+
+16.6.3 条件编译
+1) #ifdef, #else #endif指令
+
+#ifdef DEBUG
+	//
+#else
+	//
+#endif
+
+2) #ifndef指令
+通常用于防止多次包含头文件
+#ifndef THINGS_H
+#define THINGS_H
+//
+#endif
+
+3) #if #elif指令
+#if SYS == 1
+//
+#elif SYS == 2
+//
+#else
+//
+#endif 
+
+16.6.4 预定义宏
+__DATA__
+__FILE__
+__LINE__
+__TIME__
+
+__func__是预定义标识符，不是预定义宏
+
+#16.6.6 #pragma
+向编译器传递指令
+
+
+16.7 内联函数(inline function)
+------------------------------
+类似于函数宏，直接进行函数定义替换
+
+C99标准: 把函数变为内联函数，将建议编译器尽可能快速调用该函数，效果由实现来定义
+
+inline void eat_line()
+{
+	while(getchar() != '\n")
+		continue;
+}
+
+无法获得内联函数的地址；
+内联函数不会在调试器中显示。
+
+内联函数应该短小，才能达到节省时间的目的。
+
+编译器在优化内联函数时，必须知道函数定义。所以内联函数的定义和调用必须在同一文件中。一般可在头文件中放置内联函数。
+
+
+16.9 数学库
+---------------
+math.h
+sin, cos, tan, atan, exp, pow, sqrt, fabs
+可以用4*atan(1)计算PI的值
+
+16.10 通用工具库
+-------------------
+stdlib.h
+包括随机数产生函数，搜索、排序函数，转换函数，内存管理函数
+
+16.10.1 exit()
+
+16.10.2 qsort函数
+快速排序:
+void qsort(void *base, size_t nmemb, size_t size,
+	int (*comp)(const void *, const void *));
+	
+base: 指定要排序的数组头指针
+nmemb: 需要排序的项目数量
+size: 每个数据对象的大小
+comp: 确定排序顺序的比较函数
+	如果value1 > value2, 返回正数；
+	如果value1 == value2, 返回0；
+	如果value1 < value2, 返回负数。
+	实现该函数时，需要将void*指针转换成相应的数据类型
+	
+
+16.11 诊断库
+--------------------
+assert.h
+asset()函数：判断一个表达式，如果表达式值为假，则向stderr写一条错误消息，并调用abort()终止程序
+一般用于调试
+#define NDEBUG
+可禁用assert()
+
+
+16.12 string.h库中的memcpy()和memmove()
+-----------------------------------------
+void *memcpy(void * restrict s1, const void * restrict s2, size_t n);
+void *memmove(void * s1, const void * s2, size_t n);
+第三个参数n是字节数
+memcpy的两个内存区域不可以有重叠，memmove没有这样的限制
+
+
+16.13 可变参数: stdarg.h 
+--------------------------------
+步骤
+1）函数原型中使用...;
+int sum(int n, ...);
+
+2) 函数定义中创建va_list类型的变量
+va_list ap;
+
+3) 用宏va_start将该变量初始化为一个参数列表；
+va_start(ap, n);
+
+4) 用宏va_arg访问这个参数列表；
+sum += va_arg(ap, int);
+
+5) 用宏va_end完成清理工作.
+va_end(ap);
+
+完整例子:
+int sum(int n, ...)
+{
+	int sum = 0;
+	int i;
+	
+	va_list ap;
+	va_start(ap, n);
+	for (i = 0; i < n; i++) {
+		sum += va_arg(ap, int);
+	}
+	va_end(ap);
+	
+	return sum;
+}
+
+

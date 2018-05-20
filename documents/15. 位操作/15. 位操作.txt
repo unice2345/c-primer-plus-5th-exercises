@@ -1,0 +1,164 @@
+15.1 二进制数、位和字节
+-------------------------
+二进制数(binary number):以2为基数
+1101 = 1*2^3 + 1*2^2 + 0*2^1 + 1*2^0 = 13
+
+一个字节(byte)通常包括8个位(bit)
+存储范围：
+unsigned char: 0~255
+signed char: -128 ~127
+
+15.1.2 有符号整数
+二进制补码(two's-complement)表示负数：
+从一个9位组合100000000减去一个负数位的组合，就是该负数的二进制补码表示
+128为10000000, -128为100000000-10000000 = 10000000
+1为00000001, -1为100000000-00000001 = 11111111
+
+或者：
+将一个负数位的组合，翻转每一位，再加1
+128为10000000，-128为011111111 + 00000001 = 10000000
+1为00000001， -1为11111110 + 00000001 = 11111111
+
+15.2 其他基数
+----------------
+15.2.1 八进制(octal)
+以8为基数
+每个八进制位对应3个二进制位：
+八进制0377 等于 二进制011111111
+
+15.2.2 十六进制(hexadecimal, hex)
+以16为基数
+以字母A~F表示10~15
+每个十六进制位对应4个二进制位
+十六进制0xC2 等于 二进制11000010
+
+15.3 C的位运算符
+-------------------
+逻辑运算符和移位运算符
+
+15.3.1 位逻辑运算符
+应用于整型数据
+
+1) 按位取反: ~
+~1 等于 0
+~0 等于 1
+
+2) 位与(AND): &
+1&1 等于 1
+1&0 等于 0
+0&0 等于 0
+
+3) 位或(OR): |
+1|1 等于 1
+1|0 等于 1
+0|0 等于 0
+
+4）位异或: ^
+1^0 等于 1
+1^1 等于 0
+0^0 等于 0
+
+15.3.2用法：掩码（Mask）
+把某些位设置为开(1)，某些位设置为关(0)
+利用位与计算实现掩码
+flag &= MASK
+
+15.3.3 打开位
+将某些位设置为1，其余位不变
+利用位或运算
+flag |= MASK  //打开MASK中为1的位
+
+15.3.4 关闭位
+将某些位设置为0，其余位不变
+用位与运算
+flag &= ~MASK //关闭MASK中为1的位
+
+15.3.5 转置位
+转置(toggling)位对某些位进行转置，其余位不变
+用位异或计算
+flags ^= MASK //转置MASK中为1的位
+
+15.3.6 查看某一位的值
+if ((flag & MASK) == MASK)
+
+15.3.7 移位运算符
+1) 左移: << 
+所有位向左移动，右侧的位用0填充，移出的位抛弃
+10001010 << 2 等于 00101000
+
+2) 右移: >>
+所有的位向右移动，移出的位抛弃。
+对于unsigned类型，左侧移入的位用0填充；对于signed类型，结果取决于机器
+10001010 >> 2 等于 00100010 // 无符号值
+
+
+15.4 位字段
+---------------------
+bit field：也可以进行位操作
+位字段是位于signed int或unsigned int中的位；
+位字段由结构体声明，为每个字段提供标签，并指定位字段的宽度。
+
+struct {
+	unsigned int a: 1;
+	unsigned int b: 1;
+	unsigned int c: 1;
+	unsigned int d: 1;
+} prnt;
+prnt包含4个位字段，每个位字段的宽度是1位。
+使用：
+prnt.a = 1;
+prnt.b = 0;
+
+也可以指定不同的位宽度:
+struct {
+	unsigned int code1: 2;
+	unsigned int code2: 2;
+	unsigned int code3: 8;
+} prcode;
+prcode.code1 = 0;
+prcode.code2 = 3;
+prcode.code3 = 102;
+注意要保证赋的值没有超过位字段宽度的容量。
+
+如果声明的总位数超过一个unsigned int大小呢？使用下一个unsigned int。
+不允许位字段跨2个unsigned int。
+可以使用未命名的位字段填充空隙。
+可以使用宽度为0的位字段，迫使下一个位字段使用下一个unsigned int。
+
+struct st_props {
+	unsigned int field1: 1;
+	unsigned int 	   : 2;
+	unsigned int field2: 1;
+	unsigned int       : 0;
+	unsigned int field3: 1; // field3在下一个unsigned int
+} stuff;
+
+可以使用union将位字段和unsigned int一起表示:
+union foo {
+	struct st_props st_foo;
+	unsigned int ui_foo;
+}
+
+采用位运算的方式设置位，需要先将mask清空：
+比如:
+#define FILL_BLUE 0x8
+#define FILL_GREEN 0x4
+#define FILL_RED 0x2
+#define FILL_MASK 0xE
+
+struct {
+	unsigned int opaque: 1；
+	unsigned int fill_color: 3;
+} box_props;
+
+box_props &= ~FILL_MASK；
+box_props |= (FILL_BLUE | FILL_GREEN)
+
+
+
+
+
+
+
+
+

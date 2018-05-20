@@ -1,0 +1,220 @@
+13.1 和文件进行通信
+-------------------
+13.1.1 文件是什么
+文件(file), 通常就是磁盘上一段命名的存储区。
+C将文件看成连续的字节序列。
+
+13.1.2 文本视图和二进制视图
+二进制视图：文件中每个字节都可以被程序访问。
+文本视图：程序看到的内容可能和文件的内容不同。
+	将行尾的本地环境表示法映射为C语言的表示法：
+	
+	MS-DOS文件: Hello, world!\r\n
+	二进制视图: Hello, world!\r\n
+	文本视图：  Hello, world!\n
+	
+13.1.3 I/O级别
+低级I/O(low-level I/O): 操作系统提供的I/O服务
+标准高级I/O(standard high-level I/O): C语言及其库函数提供的I/O服务.
+
+13.1.4 标准文件
+C程序自动打开3个文件:
+	标准输入(standard input)
+	标准输出(standard output)
+	标准错误输出(standard error output)
+	
+	
+13.2 标准I/O
+-------------
+读输入输出进行了缓冲
+
+例子：/* count.c -- 使用标准I/O */
+#include <stdio.h>
+#include <stdlib.h> // exit()原型
+
+int main(int argc, char *argv[]) 
+{
+    int ch;               // 读取时存储每个字符
+    FILE* fp;             // 文件指针
+    long count = 0;
+    
+    if (argc != 2) {
+        printf("Usage: %s filename\n", argv[0]);
+        exit(1);
+    }
+    
+    if (NULL == (fp = fopen(argv[1], "r"))) {
+        printf("Can't open %s\n", argv[1]);
+        exit(1);
+    }
+    
+    while ((ch = getc(fp)) != EOF) {
+        putc(ch, stdout);
+        count++;
+    }
+    fclose(fp);
+    printf("\nFile %s has %ld characters\n", argv[1], count);
+    
+    printf("\n---------------------------------------------\n");
+    return 0;
+}
+
+13.2.1 检查命令行参数
+exit(): 关闭所有打开的文件，并终止程序
+其参数会传递给操作系统：
+	0或EXIT_SUCCESS：		表示程序成功终止
+	其他值或EXIT_FAILURE:   表示程序非成功终止
+	
+13.2.2 fopen函数
+fopen: 打开一个文件
+	参数1：文件名
+	参数2：打开文件的模式
+	返回值：文件指针。失败返回NULL.
+	
+表13.1 fopen函数的模式
+模式字符串                           意义
+"r"									打开文本文件，可读取
+"w"	        						打开文本文件，可写入。先将文件长度截为0，即覆盖写。
+"a"									打开文本文件，可写入。向文件尾部追加内容，即追加写。
+"r+"								打开文本文件，可更新，即可读写。
+"w+"								打开文本文件，可更新，即可读写。先将文件长度截为0。
+"a+"                                打开文本文件，可更新，即可读写。在文件结尾追加内容。
+"rb", "wb", "ab"等                  与上面作用相同，只不过打开的是二进制文件。
+
+文件指针(file pointer)
+指向FILE的指针，指向一个关于文件信息的数据结构。
+
+13.2.3 getc()和putc()函数
+从文件获取一个字符： 
+	ch =  getc(fp)
+向文件写入一个字符:
+	putc(ch, fp)
+	
+stdout也是一个文件指针
+
+13.2.4 文件结尾
+EOF
+
+13.2.5 fclose()函数
+关闭文件
+
+13.2.6 标准文件指针
+stdin, stdout, stderr
+都是FILE指针类型
+
+
+13.4 文件I/O: fprintf(), fscanf(), fgets(), fputs()
+--------------------------------------------------------
+13.4.1 fprintf()和fscanf()函数
+例子:
+char words[40];
+
+fprintf(fp, "%s", words);   //将words的内容写入到文件fp中
+fscanf(fp, "%s", words);    //将文件fp中的内容读入到words中
+
+13.4.2 fgets()和fputs()函数
+1) fgets
+fgets(buf, MAX, fp)
+参数1：buf, 存储输入的地址
+参数2：MAX, 输入字符串的最大长度
+参数3：fp, 要读取的文件
+
+fgets读取到:
+第一个换行符的后面，或者
+比字符串最大长度少1的字符，或者
+文件结尾
+
+fgets向末尾添加一个空字符以构成字符串
+	所以MAX值是读取到的字符最大数目加1
+
+fgets读取一行时，保留换行符
+
+fgets读取到EOF时，返回NULL值
+
+2) fputs
+fputs(buf, fp)
+参数1：buf, 字符串地址
+参数2：fp, 目标文件
+
+fputs不添加换行符
+
+
+13.5 随机存取: fseek()和ftell()函数
+---------------------------------------
+13.5.1 fseek()和ftell()如何工作
+fseek：定位到文件中的某个位置
+参数1：文件指针
+参数2：偏移量。表示从起始点要移动的距离。long型。
+参数3：起始点。
+	SEEK_SET  文件开始
+	SEEK_CUR  当前位置
+	SEEK_END  文件结尾
+	
+fseek(fp, 0L, SEEK_SET);   // 找到文件开始处
+fseek(fp, 10L, SEEK_SET);  // 找到文件的第10个字节
+fseek(fp, 2L, SEEK_CUR);   // 从文件的当前位置向前移动2个字节
+fseek(fp, 0L, SEEK_END);   // 到达文件结尾处
+fseek(fp, -10L, SEEK_END); // 从文件结尾处退回10个字节
+
+ftell(fp) 
+	返回当前位置，long型
+	
+适用于以二进制模式打开的文件
+
+
+13.6 标准I/O内幕
+-------------------
+fopen函数打开了一个流。
+以文本模式打开，可以得到一个文本流；
+以二进制模式打开，可以得到一个二进制流。
+
+fopen函数打开文件，同时建立一个缓冲区。
+fscanf, getc, fgets等函数会把一块数据从文件复制到缓冲区；
+输入函数从缓冲区读取所请求的数据；
+输入函数检测到已经读取了缓冲区的全部字符时，会请求系统将下一块数据读取到缓冲区。
+
+
+13.7 其他标准I/O函数
+------------------------
+13.7.2 int fflush()函数
+itn fflush(FILE* fp);
+刷新缓冲区(flushing a buffer)。将缓冲区中任何未写的数据发送到fp所指定的文件中。
+
+13.7.3 int setvbuf()函数
+int setvbuf(FILE* restrict fp, char * restrict buf, int mode, size_t size);
+建立一个供标准I/O使用的替换缓冲区.
+mode的参数：
+	_IOFBF: 完全缓冲(缓冲区满的时候刷新)
+	_IOLBF: 行缓冲(缓冲区满的时候或一个新行写入的时候刷新)
+	_IONBF: 无缓冲
+	
+13.7.4 二进制I/O: fread()和fwrite()函数
+数据是以二进制方式存储的。
+	数据以文本形式存储，会占用大量字节，并且精度有损失。
+	
+1）size_t fwrite()函数
+原型：
+size_t fwrite(const void * restrict ptr, size_t size, size_t nmemb, FILE* restrict fp);
+
+fwrite将二进制数据写入文件。
+size: 要写入数据块的大小（以字节为单位）；
+nmemb: 要写入的数据块的数目。
+
+char buffer[256];
+fwrite(buffer, 256, 1, fp);
+将一块256字节大小的数据块写入文件
+
+double earnings[10];
+fwrite(earnings, sizeof(double), 10, fp);
+将earnings数组的数据写入文件，数据分成10块，每块都是double大小。
+
+void* ptr: 数据地址，传入的参数被转换为void* 类型
+
+返回值：成功写入的项目数，与nmemb相等。
+
+13.7.6 size_t fread()函数
+原型：
+size_t fread(const void * restrict ptr, size_t size, size_t nmemb, FILE* restrict fp);
+参数作用与fwrite相同，从文件读取数据到ptr指向的地址。
+
+

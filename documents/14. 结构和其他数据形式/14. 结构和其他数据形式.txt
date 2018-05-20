@@ -1,0 +1,242 @@
+结构(struct)
+
+struct book {
+	char title[40];
+	char author[30];
+	float value;
+};
+
+结构由一个或多个部分组成，每个部分叫成员(member)或字段(field)
+
+结构声明(struct declaration)
+1) 关键字struct;
+2) 可选的标记名，book；
+3) 花括号中包含结构的成员列表
+	每个成员变量的声明以分号结束；成员变量的类型可以是基本型，也可以是结构
+4) 花括号后的分号，表明结构定义结束。
+
+14.3 定义结构变量
+------------------------
+struct book my_book;
+创建了一个结构变量my_book, 编译器使用struct book模板为该变量分配空间。
+
+struct book结构的声明，实际上创建了struct book的新类型。
+
+定义结构变量和指针:
+struct book my_book, *p_my_book;
+
+14.3.1 初始化结构
+struct book my_book = {"C primer plus", "Stephen Prata", 60};
+以花括号括起来，逗号分隔的初始化项目列表进行初始化
+
+14.3.2 访问结构成员
+用.访问结构成员:
+
+printf("Book title is %s\n", my_book.title);
+my_book.value += 10;
+
+14.3.3 结构的指定项目初始化
+struct book gift = {
+	.value = 60,
+	.author = "Stephen Prata"，
+	.title = "C Primer Plus"
+};
+
+14.5 嵌套结构
+-----------------------
+#define LEN 20
+struct name {
+	char first[LEN];
+	char last[LEN];
+};
+
+struct guy {
+	struct name guy_name;
+	char favfood[LEN];
+	char job[LEN];
+	float income;
+};
+
+struct guy结构内部也包含了一个结构:struct name
+
+1)初始化
+struct guy fellow = {
+	{"Bill", "Gates"},
+	"Hamberge",
+	"CEO",
+	10000000.00
+};
+
+2)访问成员
+printf("Hello, %s", fellow.guy_name.first);
+
+
+14.6 指向结构的指针
+-------------------------
+14.6.1 声明和初始化结构指针
+struct guy *him; // 声明结构指针
+him = &fellow;   // 初始化结构指针
+
+14.6.2 用指针访问结构成员
+用->运算符
+
+printf("His income is %f\n", him->income);
+
+him->income和(*him).income是等价的
+
+
+14.7 向函数传递结构信息
+--------------------------
+14.7.2 传递结构指针
+struct point {
+	float x;
+	float y;
+};
+
+float distance(const struct point *pt0, const struct point *pt1)
+{
+	returen sqrt(pow(pt0->x - pt1->x, 2) + pow(pt0->y - pt1->y, 2));
+}
+
+14.7.2 传递结构
+struct vector {
+	float x;
+	float y;
+};
+
+struct vector sum_vec(struct vector vec0, struct vector vec1)
+{
+	struct vector sum = {vec0.x + vec1.x, vec0.y + vec1.y};
+	return sum;
+}
+
+传递结构指针，可以节省空间；传递结构值，有时代码阅读性更好；传递结构值，是处理小数据结构的常用方法。
+
+14.7.6 在结构中使用字符数组还是字符指针
+struct name {
+	char first[LEN];
+	char last[LEN];
+};
+
+struct pname {
+	char *first;
+	char *last;
+};
+
+使用字符指针时，需要用malloc分配空间:
+
+struct pname my_pname;
+my_pname.first = (char*)malloc(10);
+my_pname.last = (char*)malloc(10);
+
+使用字符数组，容易造成空间浪费；使用字符指针，容易出错。
+
+
+14.10 联合简介
+----------------
+联合(union): 在同一个存储空间里存储不同类型的数据
+
+union hold {
+	int digit;
+	double bigfl;
+	char letter;
+};
+
+联合只存储一个值：
+union hold fit;
+fit.digit = 23;
+fit.bigfl = 2.0; // 清除了23
+fit.letter = 'h'; // 清除了2.0
+
+
+14.11 枚举类型
+---------------
+枚举类型(enemerated type)声明代表整数常量的符号名称.
+关键字enum可创建新的类型并制定具体的值。
+enum常量是int类型。
+目的：提高程序可读性
+
+enum spectrum {red, orange, yellow, greeen, blue, violet};
+enum color;
+
+color = blue;
+
+if (color == yellow)
+	...
+	
+switch(color) {
+	case red:
+	case orange:
+		...
+}
+
+14.11.1 enum常量
+enum的值是int常量
+
+14.11.2 默认值
+默认时，枚举列表中的常量被指定为整数值0,1,2等
+
+14.11.3 制定值
+可以选择常量具有指定的整数值
+enum levels {low = 100, medium = 500, high = 1000};
+
+
+14.12 typedef简介
+--------------------------------
+为某一类型创建名字
+1)typedef给出的符号名称仅限于类型
+2)typedef由编译器解释
+
+typedef unsigned char BYTE;
+BYTE x, y[10], *z;
+
+使用typedef命名一个结构类型时，可以省略结构的标记:
+typedef struct {
+	double x;
+	double y;
+} rect;
+
+rect r1 = {3.0, 6.0};
+rect r2 = r1;
+
+typedef不创建类型，只是创建新的使用标签
+
+
+14.14 函数和指针
+---------------------------------
+函数也有地址，指向函数的指针保存着函数代码起始处的地址
+
+声明一个数据指针时，必须声明它指向的数据类型
+函数的数据类型：返回类型和参量类型
+	void ToUpper(char *)
+	类型是: 具有char*参量，返回值是void的函数
+
+指向函数的指针：
+	void (*pf)(char *)
+	
+声明方法：声明一个函数，用(*pf)代替函数名
+
+赋值:
+void ToUpper(char *);
+void ToLower(char *);
+void (*pf)(char *);
+pf = ToUpper;
+pf = ToLower;
+
+使用：
+char msg[] = "Hello!";
+(*pf)(msg); // 对指针函数解引用，获得函数地址
+pf(msg);  // 函数名也是指针，可以互换指针和函数名
+
+使用场景：作为函数入参
+void show(void (*pf)(char *), char * str) {
+	pf(str);
+	puts(str);
+}
+show(ToLower, msg);
+show(pf, msg);
+
+使用typedef定义函数指针
+typedef void (*V_FP_CHARP)(char*)
+void show(V_FP_CHARP, char*);
+V_FP_CHARP pf;

@@ -1,0 +1,129 @@
+7.1 if语句
+--------------
+分支语句(branching statement)或选择语句(selection statement)
+
+if(expression)
+	statement
+	
+7.2 if和else
+--------------
+if(expression)
+	statement1
+else
+	statement2
+	
+getchar()和putchar()
+预处理宏
+
+多重选择: else-if
+例子:
+if(a < 10)
+	printf("%d < 10\n", a);
+else if(a < 20)
+	printf("%d < 20\n", a);
+else
+	printf("%d >= 20\n", a);
+	
+else和它最近的if匹配
+例子：
+	略
+	
+
+7.3 逻辑运算符
+----------------
+运算符		含义
+ &&          与
+ ||          或
+ ！          非
+ 
+7.3.2 优先级
+！优先级仅次于圆括号
+关系运算符 > && > || > 赋值运算符
+
+a > b && b > c || b > d
+
+7.3.3 求值顺序
+C保证逻辑表达式的顺序是从左到右的。
+&&和||是序列分界点，在逻辑运算符之后，所以的副作用都生效。
+例子：
+while(number != 0 && 12 / number == 2)
+
+7.3.4 范围判断
+正确：if (range > 90 && range < 100)
+错误：if (90 <= range <= 100); 语义错误，永远成立
+
+
+7.5 条件运算符
+-------------------
+三元运算符
+条件表达式
+expression1 ? expression2 : expression3
+如果expression1为真，整个条件表达式的值与expression2相同；
+如果expression1为假，整个条件表达式的值与expression3相同。
+
+例子：
+max = (a > b) ? a : b;
+
+
+7.6 循环辅助手段：continue和break
+7.6.1 continue
+对于while和do while: continue之后求循环判断表达式的值
+count = 0;
+while(count < 10) {
+	ch = getchar();
+	if (ch == '\n')
+		continue;
+	putchar(ch);
+	count++;
+}
+
+对于for：continue后先求更新表达式的值，再求判断表达式的值
+for (count = 0; count < 10; count++) {
+	ch = getchar();
+	if (ch == '\n')
+		continue;
+	putchar(ch);
+}
+
+7.6.2 break
+终止包含它的循环
+只跳出最里层的循环
+while ((ch = getchar()) != '\n') {
+	if (ch == '\t')
+		break;
+	putchar(ch);
+}
+
+
+7.7 多重选择：switch和break
+switch (integer expression)
+{
+	case constant1:
+		statements // 可选的
+	case constant2:
+		statements // 可选的
+	default:	   // 可选的
+		statements // 可选的
+}
+
+紧跟在switch后的圆括号表达式求值，程序扫描标签(label)列表，搜索与该值匹配的标签，然后跳到那一行执行。
+如果有default标签，程序会跳到改行(除非之前有break语句).
+break跳出switch语句。 (不能使用continue)
+
+
+例子：
+switch (number)
+{
+	case 1: statement1;
+		break;
+	case 2: statement2;
+		break;
+	case 3: statement3;
+		break;
+	default: statement4;
+}
+
+switch判断表达式应该具有整数值(包括char)， case标签必须是整型(包括char)、常量或整数常量表达式。
+不能用变量作为case标签。
+
+	
